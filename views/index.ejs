@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="shortcut icon" href="https://learn.village88.com/assets/black_ninja-9adea777014ced1d5d36046555cf036c.ico?v=2" type="image/x-icon">
+        <link rel="stylesheet" href="/stylesheets/index.css">
+        <script src="https://kit.fontawesome.com/929adf1879.js" crossorigin="anonymous"></script>
+        <title>Village88 | NodeJS (Express) | Group Chat</title>
+    </head>
+    <body>
+        <section>
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h1><i class="fas fa-comments"></i> DojoChat</h1>
+                </div>
+                <div class="chat-body">
+                    <!--
+                        USER MESSAGES APPEAR HERE
+                    -->
+                </div>
+                <div class="chat-input">
+                    <form>
+                        <input type="text" name="chat_message" id="chat_message" placeholder="Enter message here!">
+                    </form>
+                </div>
+            </div>
+            <footer>
+                DojoChat &copy <span id="year"></span>
+            </footer>
+        </section>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+        <script>
+            $(document).ready(function(){
+                const socket = io();
+                let id;
+                let username;
+
+                while(username == null || username == "")
+                    username = prompt("Please enter your name:");
+
+                // TODO: Show body after user enters username
+                $("body").show();
+
+                // TODO: Focus on input
+                $("#chat_message").focus()
+
+                // TODO: Get Year for the Footer
+                $("#year").html(new Date().getFullYear());
+
+                $("form").submit(function(e){
+                    e.preventDefault();
+                    let form_data = {
+                        sender: username,
+                        message: $("#chat_message").val()
+                    }
+                    
+                    $(this)[0].reset();
+
+                    socket.emit("send_message", {form_data: form_data});
+                });
+
+                socket.on("send_id", data => {
+                    id = data.id;
+                });
+                
+                socket.on("send_messages", messages => {
+                    $(".chat-body").html("");
+                    renderMessages(messages);
+                });
+
+                function renderMessages(messages){
+                    console.log("username: ", username);
+                    console.log("id: ", id);
+                    messages.forEach(function(value){
+                        let sender = (value.id == id) ? "Me" : value.sender;
+                        let div = document.createElement("div");
+                        div.classList.add("chat-message-container");
+                        div.innerHTML = `<p class="chat-sender">${sender}</p>
+                            <p class="chat-time">${value.time}</p>
+                            <p>${value.message}</p>`;
+                            
+                        $(".chat-body").append(div);
+
+                        // TODO: Scroll down
+                        $(".chat-body").scrollTop($(".chat-body")[0].scrollHeight);
+                    });
+                }
+            });
+        </script>
+    </body>
+</html>
