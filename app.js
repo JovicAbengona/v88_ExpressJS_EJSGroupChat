@@ -1,5 +1,4 @@
 const express = require("express");
-var session = require("express-session");
 const app = express();
 const server = app.listen(8080, function(){
     console.log("Listening on 8080");
@@ -10,11 +9,6 @@ const io = require('socket.io')(server);
 app.use(express.static(__dirname + "/static"));
 app.set('views', __dirname + '/views'); 
 app.set('view engine', 'ejs');
-app.use(session({
-    secret: "secret-key",
-    resave: false,
-    saveUninitialized: false,
-}));
 
 let messages = [];
 
